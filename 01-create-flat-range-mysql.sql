@@ -72,3 +72,8 @@ alter table t2
 	rename to countries_ips_flat,
 	change column f range_start int(20) unsigned not null default 0 first,
 	change column v country_code varchar(2) not null default '' after range_start;
+
+-- Comparing records count and check, that's all is ok
+select
+	(select count(*) from countries_ips) as default_range_records,
+	(select count(*) from countries_ips_flat) as flat_range_records;
