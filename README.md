@@ -11,7 +11,7 @@ Let's try new way:
 
 ```sql
 select country_code from countries_ips_flat where
-inet_aton('123.123.123.123') >= range_start order by range_start limit 1
+inet_aton('123.123.123.123') >= range_start order by range_start desc limit 1
 ```
 
 ## You are welcome
