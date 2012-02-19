@@ -2,8 +2,6 @@ drop database if exists geoip_flat_range;
 create database geoip_flat_range;
 use geoip_flat_range;
 
--- ip_start, ip_end, range_start, range_end, country_code
-
 create table countries_ips (
 	ip_start char(15) not null default '0.0.0.0',
 	ip_end char(15) not null default '0.0.0.0',

@@ -41,8 +41,8 @@ drop table if exists t3diff;
 
 -- We should remove records, that points to the same value and is one after another
 alter table t2 drop primary key;
-alter table t2 add column row_number int(10) unsigned not null auto_increment primary key;
-alter table t2 add column next_row_number int(10) unsigned not null;
+alter table t2 add column row_number int unsigned not null auto_increment primary key;
+alter table t2 add column next_row_number int unsigned not null;
 update t2 set next_row_number = row_number + 1;
 alter table t2 add unique index next_row_number_v (next_row_number, v);
 
@@ -70,7 +70,7 @@ alter table t2
 drop table if exists countries_ips_flat;
 alter table t2
 	rename to countries_ips_flat,
-	change column f range_start int(20) unsigned not null default 0 first,
+	change column f range_start int unsigned not null default 0 first,
 	change column v country_code varchar(2) not null default '' after range_start;
 
 -- Comparing records count and check, that's all is ok
