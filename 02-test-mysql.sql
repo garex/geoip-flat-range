@@ -1,26 +1,20 @@
--- From first sight new method is worse, than old
+-- From simple explains we can see, that flat range method is better, than plain old range method
 explain
 select country_code from countries_ips where inet_aton('123.123.123.123') between range_start and range_end limit 1;
-
 explain
 select country_code from countries_ips_flat where inet_aton('123.123.123.123') >= range_start order by range_start desc limit 1;
 
--- But let's profile a little :)
--- On my home machine (WinXP, 2.8Ghz, 1.5Gb) it gives stable results in ~3 times better -- see last two results from queries below
--- That's why we shouldn' trust mysql`s explain
+-- Let's profile a little :)
+-- On my home machine (WinXP, 2.8Ghz, 1.5Gb) it gives stable results in ~4 times better -- see last two results from queries below
 
 -- Preparing...
 flush status;
 flush tables;
 set session query_cache_type = off;
-set session profiling_history_size = 6;
+set session profiling_history_size = 2;
 set session profiling = 1;
 
 -- Actual queries (3 times)
-select country_code from countries_ips where inet_aton('123.123.123.123') between range_start and range_end limit 1;
-select country_code from countries_ips_flat where inet_aton('123.123.123.123') >= range_start order by range_start desc limit 1;
-select country_code from countries_ips where inet_aton('123.123.123.123') between range_start and range_end limit 1;
-select country_code from countries_ips_flat where inet_aton('123.123.123.123') >= range_start order by range_start desc limit 1;
 select country_code from countries_ips where inet_aton('123.123.123.123') between range_start and range_end limit 1;
 select country_code from countries_ips_flat where inet_aton('123.123.123.123') >= range_start order by range_start desc limit 1;
 
@@ -54,3 +48,12 @@ from profile
 group by query_number, step_number, step_name;
 
 drop table if exists profile;
+
+-- Also let's compare key reads: 6608 vs. 9
+flush tables;
+flush status;
+select country_code from countries_ips where inet_aton('123.123.123.123') between range_start and range_end limit 1;
+show status like 'Key_read_requests';
+flush status;
+select country_code from countries_ips_flat where inet_aton('123.123.123.123') >= range_start order by range_start desc limit 1;
+show status like 'Key_read_requests';
