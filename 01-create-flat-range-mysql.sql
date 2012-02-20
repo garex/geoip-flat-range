@@ -1,10 +1,10 @@
 -- Create intermediate table with 3 columns
+-- Change this to your columns and/or table
 drop table if exists t3;
 create table t3
-select
-	range_start f, range_end t, country_code v	-- Change this to your columns
-	from countries_ips							-- and/or table
-;
+select range_start f, range_end t, country_code v
+from countries_ips
+order by range_start desc, range_end;
 alter table t3 add primary key (f,t,v);
 
 -- Create target table with 2 columns and fill it with all distinct ranges borders
@@ -35,10 +35,6 @@ select distinct diff from t3 order by diff;
 -- Here are our MAIN update
 update t3diff, t2, t3 set t2.v = t3.v where t3.diff = t3diff.diff and t2.f between t3.f and t3.t;
 
--- We dont' need 'em anymore
-drop table if exists t3;
-drop table if exists t3diff;
-
 -- We should remove records, that points to the same value and is one after another
 alter table t2 drop primary key;
 alter table t2 add column row_number int unsigned not null auto_increment primary key;
@@ -48,7 +44,12 @@ alter table t2 add unique index next_row_number_v (next_row_number, v);
 
 delete t2.* from t2, (
 	select cur.row_number from t2 as cur
-	join t2 prev on cur.row_number = prev.next_row_number and cur.v = prev.v	
+	join t2 prev
+		on cur.row_number = prev.next_row_number
+		and (
+			cur.v = prev.v
+			or (cur.v is null and prev.v is null)
+		)
 ) as inn
 where t2.row_number = inn.row_number;
 
@@ -70,8 +71,8 @@ alter table t2
 drop table if exists countries_ips_flat;
 alter table t2
 	rename to countries_ips_flat,
-	change column f range_start int unsigned not null default 0 first,
-	change column v country_code varchar(2) not null default '' after range_start;
+	change column f range_start int unsigned not null,
+	change column v country_code char(2) not null;
 
 -- Comparing records count and check, that's all is ok
 select
