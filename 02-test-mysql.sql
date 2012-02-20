@@ -14,7 +14,7 @@ set session query_cache_type = off;
 set session profiling_history_size = 2;
 set session profiling = 1;
 
--- Actual queries (3 times)
+-- Actual queries
 select country_code from countries_ips where inet_aton('123.123.123.123') between range_start and range_end limit 1;
 select country_code from countries_ips_flat where inet_aton('123.123.123.123') >= range_start order by range_start desc limit 1;
 
